@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create New Job - Last Mile Trucking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f4f4f4;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    .container {
+        max-width: 450px;
+        margin: auto;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    label {
+        font-weight: bold;
+        margin-top: 10px;
+        display: block;
+    }
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        box-sizing: border-box;
+        border: 1px solid #999;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 20px;
+        background: #0077ff;
+        color: white;
+        border: none;
+        font-size: 18px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #005bd1;
+    }
+    .message {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 5px;
+        display: none;
+        font-weight: bold;
+        text-align: center;
+    }
+    .success {
+        background: #d2ffd2;
+        color: #006600;
+    }
+    .error {
+        background: #ffd2d2;
+        color: #990000;
+    }
+</style>
+
+</head>
+<body>
+
+<h1>Create a New Job</h1>
+
+<div class="container">
+    <label>Pickup Location</label>
+    <input id="pickup" type="text" placeholder="e.g., Amazon SODO">
+
+    <label>Dropoff Location</label>
+    <input id="dropoff" type="text" placeholder="e.g., Bellevue Downtown">
+
+    <label>Load Description</label>
+    <textarea id="description" rows="4" placeholder="Describe the load..."></textarea>
+
+    <button onclick="submitJob()">Create Job</button>
+
+    <div id="message" class="message"></div>
+</div>
+
+<script>
+    async function submitJob() {
+
+        const pickup = document.getElementById("pickup").value;
+        const dropoff = document.getElementById("dropoff").value;
+        const description = document.getElementById("description").value;
+        const messageBox = document.getElementById("message");
+
+        if (!pickup || !dropoff || !description) {
+            messageBox.style.display = "block";
+            messageBox.className = "message error";
+            messageBox.innerText = "All fields are required.";
+            return;
+        }
+
+        try {
+            const response = await fetch("http://YOUR_SERVER_URL_HERE/jobs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    pickup_location: pickup,
+                    dropoff_location: dropoff,
+                    load_description: description
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                messageBox.style.display = "block";
+                messageBox.className = "message success";
+                messageBox.innerText = "Job created successfully! ID: " + result.id;
+
+                document.getElementById("pickup").value = "";
+                document.getElementById("dropoff").value = "";
+                document.getElementById("description").value = "";
+
+            } else {
+                throw new Error(result.detail || "Failed to create job");
+            }
+
+        } catch (err) {
+            messageBox.style.display = "block";
+            messageBox.className = "message error";
+            messageBox.innerText = "Error: " + err.message;
+        }
+    }
+</script>
+
+</body>
+</html>
